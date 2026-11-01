@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>مواقعي</title>
+<style>
+:root{
+  --bg:#f3f5f2; --card:#ffffff; --ink:#1d2b24; --muted:#6b7a72; --line:#e2e7e3;
+  --main:#1f7a52; --main2:#e6f3ec; --danger:#c0392b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif;font-size:17px}
+body{padding-bottom:110px}
+header{position:sticky;top:0;z-index:5;background:var(--main);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 16px 14px;display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:22px;flex:1}
+header button{background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:12px;padding:9px 13px;font-size:16px}
+.wrap{max-width:900px;margin:0 auto;padding:14px 16px}
+.search{width:100%;padding:13px 15px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-size:17px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.folder{border-radius:18px;padding:18px 14px;min-height:112px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 3px 10px rgba(0,0,0,.1);position:relative}
+.folder .ic{font-size:30px}
+.folder .nm{font-size:18px;font-weight:700;margin-top:8px}
+.folder .ct{font-size:14px;opacity:.9}
+.folder .ed{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.25);border:0;color:#fff;border-radius:10px;width:34px;height:34px;font-size:16px}
+.folder.add{background:var(--card);color:var(--main);border:2px dashed #b9d6c6;box-shadow:none;align-items:center;justify-content:center;font-weight:700}
+.place{background:var(--card);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-right:6px solid var(--main)}
+.place .pin{font-size:26px}
+.place .info{flex:1;min-width:0}
+.place .pn{font-weight:700;font-size:18px}
+.place .pd{color:var(--muted);font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place .act{display:flex;gap:6px}
+.place .act button{border:0;background:var(--main2);border-radius:11px;width:42px;height:42px;font-size:18px}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 20px);left:50%;transform:translateX(-50%);background:var(--main);color:#fff;border:0;border-radius:30px;padding:16px 28px;font-size:18px;font-weight:700;box-shadow:0 6px 18px rgba(31,122,82,.4);z-index:6}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:640px;border-radius:22px 22px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom) + 20px);max-height:92vh;overflow:auto}
+.sheet h2{margin:0 0 14px;font-size:20px}
+label{display:block;font-size:15px;color:var(--muted);margin:12px 0 6px}
+input,select,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);font-size:17px;background:#fafbfa;font-family:inherit;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.btn{border:0;border-radius:13px;padding:14px;font-size:17px;font-weight:700;background:var(--main2);color:var(--main);width:100%;margin-top:10px}
+.btn.pri{background:var(--main);color:#fff}
+.btn.del{background:#fbeaea;color:var(--danger)}
+.hint{font-size:14px;color:var(--muted);margin-top:6px;min-height:18px}
+.hint.ok{color:var(--main)} .hint.bad{color:var(--danger)}
+.colors{display:flex;flex-wrap:wrap;gap:10px}
+.colors span{width:40px;height:40px;border-radius:50%;border:3px solid transparent}
+.colors span.on{border-color:var(--ink)}
+.emojis{display:flex;flex-wrap:wrap;gap:8px}
+.emojis span{font-size:26px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#f1f3f1;border:2px solid transparent}
+.emojis span.on{border-color:var(--main)}
+.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:#1d2b24;color:#fff;padding:11px 18px;border-radius:12px;z-index:50;display:none;font-size:15px}
+.ftitle{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:15px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <button id="backBtn" style="display:none" onclick="goHome()">→</button>
+  <h1 id="title">مواقعي</h1>
+  <button onclick="openBackup()">⋮</button>
+</header>
+
+<div class="wrap" id="main"></div>
+<button class="fab" onclick="openPlace()">＋ أضف موقع</button>
+
+<!-- نافذة الموقع -->
+<div class="sheet-bg" id="placeSheet" onclick="if(event.target===this)closeSheet(this)">
+ <div class="sheet">
+  <h2 id="pTitle">موقع جديد</h2>
+  <label>اسم الموقع</label>
+  <input id="pName" placeholder="مثلاً: بيت أبو محمد">
+  <label>المجلد</label>
+  <select id="pFolder"></select>
+  <label>الموقع</label>
+  <button class="btn pri" onclick="useMyLocation()">📍 استخدم موقعي الحالي</button>
+  <div class="row">
+    <button class="btn" onclick="pasteLoc()">📋 لصق رابط</button>
+  </div>
+  <textarea id="pLoc" placeholder="الصق رابط قوقل ماب أو الإحداثيات هنا" oninput="checkLoc()"></textarea>
+  <div class="hint" id="pHint"></div>
+  <label>ملاحظة (اختياري)</label>
+  <input id="pNote" placeholder="مثلاً: البوابة الخلفية">
+  <button class="btn pri" onclick="savePlace()">حفظ</button>
+  <button class="btn del" id="pDel" onclick="delPlace()">حذف الموقع</button>
+ </div>
+</div>
+
+<!-- نافذة المجلد -->
+<div class="sheet-bg" id="folderSheet" onclick="if(event.target===this)closeSheet(this)">
+ <div class="sheet">
+  <h2 id="fTitle">مجلد جديد</h2>
+  <label>اسم المجلد</label>
+  <input id="fName" placeholder="مثلاً: بيوت الأصدقاء">
+  <label>الأيقونة</label>
+  <div class="emojis" id="fEmojis"></div>
+  <label>اللون</label>
+  <div class="colors" id="fColors"></div>
+  <button class="btn pri" onclick="saveFolder()">حفظ</button>
+  <button class="btn del" id="fDel" onclick="delFolder()">حذف المجلد</button>
+ </div>
+</div>
+
+<!-- نافذة النسخ الاحتياطي -->
+<div class="sheet-bg" id="backupSheet" onclick="if(event.target===this)closeSheet(this)">
+ <div class="sheet">
+  <h2>النسخة الاحتياطية</h2>
+  <button class="btn pri" onclick="copyBackup()">📋 نسخ النسخة الاحتياطية</button>
+  <div class="hint">انسخها والصقها في ملاحظاتك أو أرسلها لنفسك بالواتساب.</div>
+  <label>استرداد نسخة</label>
+  <textarea id="restoreBox" placeholder="الصق النسخة هنا"></textarea>
+  <button class="btn" onclick="restoreBackup()">استرداد</button>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='mawaqii_v1';
+const COLORS=['#1f7a52','#2e86c1','#8e44ad','#d35400','#c0392b','#16a085','#7f8c8d','#b7950b'];
+const EMOJIS=['🏠','🔧','🕌','🏥','🛒','⛽','🍽️','🏢','🏫','🚗','🐑','⭐'];
+let db=load();
+let curFolder=null, editPlaceId=null, editFolderId=null, selColor=COLORS[0], selEmoji=EMOJIS[0], pendingLoc=null, query='';
+
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.folders) return d;}catch(e){}
+  return {folders:[
+    {id:'f1',name:'بيوت الأصدقاء',color:'#1f7a52',emoji:'🏠'},
+    {id:'f2',name:'مواقع الصيانة',color:'#d35400',emoji:'🔧'}
+  ],places:[]};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('تعذر الحفظ');}}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const ar=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toEn(s){return String(s).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٫/g,'.').replace(/،/g,',');}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2200);}
+const folderOf=id=>db.folders.find(f=>f.id===id);
+
+/* ---------- قراءة الرابط أو الإحداثيات ---------- */
+function parseLoc(raw){
+  const s=toEn(raw||'').trim(); if(!s) return null;
+  const pats=[/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/,
+    /[?&](?:q|query|destination|ll|daddr|center)=(?:loc:)?(-?\d+\.\d+)\s*(?:,|%2C)\s*\+?(-?\d+\.\d+)/i,
+    /(-?\d{1,2}\.\d{3,})\s*[,\s]\s*(-?\d{1,3}\.\d{3,})/];
+  for(const p of pats){const m=s.match(p);
+    if(m){const lat=+m[1],lng=+m[2]; if(Math.abs(lat)<=90&&Math.abs(lng)<=180) return {lat,lng};}}
+  const u=s.match(/https?:\/\/\S+/i); if(u) return {url:u[0]};
+  return null;
+}
+function checkLoc(){
+  pendingLoc=parseLoc(document.getElementById('pLoc').value);
+  const h=document.getElementById('pHint');
+  if(!document.getElementById('pLoc').value.trim()){h.textContent='';h.className='hint';return;}
+  if(pendingLoc&&pendingLoc.lat!=null){h.textContent='✓ تم التعرف على الموقع: '+ar(pendingLoc.lat.toFixed(5))+' ، '+ar(pendingLoc.lng.toFixed(5));h.className='hint ok';}
+  else if(pendingLoc&&pendingLoc.url){h.textContent='✓ تم حفظ الرابط، سيفتح في قوقل ماب';h.className='hint ok';}
+  else{h.textContent='لم أتعرف على الموقع، الصق رابط قوقل ماب أو إحداثيات';h.className='hint bad';}
+}
+function useMyLocation(){
+  const h=document.getElementById('pHint');
+  if(!navigator.geolocation){h.textContent='الجوال لا يدعم تحديد الموقع';h.className='hint bad';return;}
+  h.textContent='جاري تحديد موقعك…';h.className='hint';
+  navigator.geolocation.getCurrentPosition(p=>{
+    const lat=+p.coords.latitude.toFixed(6),lng=+p.coords.longitude.toFixed(6);
+    document.getElementById('pLoc').value=lat+','+lng; checkLoc();
+    h.textContent+=' (دقة '+ar(Math.round(p.coords.accuracy))+' م)';
+  },e=>{h.textContent='تعذر تحديد الموقع، تأكد من تشغيل الموقع (GPS) والسماح للتطبيق';h.className='hint bad';},
+  {enableHighAccuracy:true,timeout:25000,maximumAge:0});
+}
+async function pasteLoc(){
+  try{const t=await navigator.clipboard.readText(); if(t){document.getElementById('pLoc').value=t;checkLoc();return;}}catch(e){}
+  document.getElementById('pLoc').focus(); toast('اضغط مطولاً في المربع واختر لصق');
+}
+
+/* ---------- الفتح في قوقل ماب ---------- */
+function mapUrl(p){return p.lat!=null?`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`:p.url;}
+function shareUrl(p){return p.lat!=null?`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`:p.url;}
+function go(id){const p=db.places.find(x=>x.id===id); if(p) window.location.href=mapUrl(p);}
+function share(id){const p=db.places.find(x=>x.id===id); if(!p) return;
+  window.location.href='https://wa.me/?text='+encodeURIComponent('📍 '+p.name+'\n'+shareUrl(p));}
+
+/* ---------- العرض ---------- */
+function render(){
+  const m=document.getElementById('main');
+  document.getElementById('backBtn').style.display=curFolder?'block':'none';
+  const f=curFolder&&folderOf(curFolder);
+  document.getElementById('title').textContent=f?f.emoji+' '+f.name:'مواقعي';
+  let h=`<input class="search" placeholder="🔍 ابحث عن موقع" value="${esc(query)}" oninput="query=this.value;renderList()">`;
+  h+='<div id="list"></div>'; m.innerHTML=h; renderList();
+}
+function placeCard(p,showFolder){
+  const f=folderOf(p.folderId)||{color:'#1f7a52',emoji:'📍',name:''};
+  const sub=[showFolder?f.name:'',p.note].filter(Boolean).join(' • ');
+  return `<div class="place" style="border-right-color:${f.color}" onclick="go('${p.id}')">
+    <div class="pin">📍</div>
+    <div class="info"><div class="pn">${esc(p.name)}</div>${sub?`<div class="pd">${esc(sub)}</div>`:''}</div>
+    <div class="act">
+      <button onclick="event.stopPropagation();share('${p.id}')">📤</button>
+      <button onclick="event.stopPropagation();openPlace('${p.id}')">✏️</button>
+    </div></div>`;
+}
+function renderList(){
+  const L=document.getElementById('list'); const q=query.trim();
+  if(q){
+    const r=db.places.filter(p=>(p.name+' '+(p.note||'')).includes(q)&&(!curFolder||p.folderId===curFolder));
+    L.innerHTML=r.length?r.map(p=>placeCard(p,!curFolder)).join(''):'<div class="empty">لا توجد نتائج</div>'; return;
+  }
+  if(!curFolder){
+    let h='<div class="grid">';
+    db.folders.forEach(f=>{const c=db.places.filter(p=>p.folderId===f.id).length;
+      h+=`<div class="folder" style="background:${f.color}" onclick="openFolder('${f.id}')">
+        <button class="ed" onclick="event.stopPropagation();openFolderSheet('${f.id}')">✏️</button>
+        <div class="ic">${f.emoji}</div><div><div class="nm">${esc(f.name)}</div><div class="ct">${ar(c)} موقع</div></div></div>`;});
+    h+=`<div class="folder add" onclick="openFolderSheet()">＋ مجلد جديد</div></div>`;
+    L.innerHTML=h; return;
+  }
+  const ps=db.places.filter(p=>p.folderId===curFolder).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  L.innerHTML=`<div class="ftitle">${ar(ps.length)} موقع — اضغط على الموقع ليفتح في قوقل ماب</div>`+
+    (ps.length?ps.map(p=>placeCard(p,false)).join(''):'<div class="empty">لا توجد مواقع في هذا المجلد بعد<br>اضغط «أضف موقع» بالأسفل</div>');
+}
+function openFolder(id){curFolder=id;query='';render();history.pushState({f:id},'');}
+function goHome(){if(history.state&&history.state.f) history.back(); else {curFolder=null;query='';render();}}
+let ignorePop=false;
+window.addEventListener('popstate',()=>{if(ignorePop){ignorePop=false;return;} const open=document.querySelector('.sheet-bg.on');
+  if(open){open.classList.remove('on');return;} curFolder=null;query='';render();});
+
+/* ---------- الموقع: إضافة وتعديل ---------- */
+function openPlace(id){
+  if(!db.folders.length){toast('أنشئ مجلداً أولاً');openFolderSheet();return;}
+  editPlaceId=id||null; const p=id?db.places.find(x=>x.id===id):null;
+  document.getElementById('pTitle').textContent=p?'تعديل الموقع':'موقع جديد';
+  document.getElementById('pName').value=p?p.name:'';
+  document.getElementById('pNote').value=p?(p.note||''):'';
+  document.getElementById('pLoc').value=p?(p.lat!=null?p.lat+','+p.lng:p.url):'';
+  document.getElementById('pFolder').innerHTML=db.folders.map(f=>`<option value="${f.id}">${f.emoji} ${esc(f.name)}</option>`).join('');
+  document.getElementById('pFolder').value=p?p.folderId:(curFolder||db.folders[0].id);
+  document.getElementById('pDel').style.display=p?'block':'none';
+  checkLoc(); openSheet('placeSheet');
+}
+function savePlace(){
+  const name=document.getElementById('pName').value.trim();
+  if(!name){toast('اكتب اسم الموقع');return;}
+  checkLoc(); if(!pendingLoc){toast('أضف الموقع: موقعك الحالي أو رابط');return;}
+  const data={name,folderId:document.getElementById('pFolder').value,note:document.getElementById('pNote').value.trim(),
+    lat:pendingLoc.lat??null,lng:pendingLoc.lng??null,url:pendingLoc.url||null};
+  if(editPlaceId) Object.assign(db.places.find(x=>x.id===editPlaceId),data);
+  else db.places.push({id:uid(),created:Date.now(),...data});
+  save(); closeSheet(document.getElementById('placeSheet')); render(); toast('تم الحفظ ✓');
+}
+function delPlace(){if(!confirm('حذف هذا الموقع؟'))return;
+  db.places=db.places.filter(x=>x.id!==editPlaceId); save(); closeSheet(document.getElementById('placeSheet')); render();}
+
+/* ---------- المجلد ---------- */
+function openFolderSheet(id){
+  editFolderId=id||null; const f=id?folderOf(id):null;
+  document.getElementById('fTitle').textContent=f?'تعديل المجلد':'مجلد جديد';
+  document.getElementById('fName').value=f?f.name:'';
+  selColor=f?f.color:COLORS[db.folders.length%COLORS.length]; selEmoji=f?f.emoji:EMOJIS[0];
+  drawPickers(); document.getElementById('fDel').style.display=f?'block':'none';
+  openSheet('folderSheet');
+}
+function drawPickers(){
+  document.getElementById('fColors').innerHTML=COLORS.map(c=>`<span style="background:${c}" class="${c===selColor?'on':''}" onclick="selColor='${c}';drawPickers()"></span>`).join('');
+  document.getElementById('fEmojis').innerHTML=EMOJIS.map(e=>`<span class="${e===selEmoji?'on':''}" onclick="selEmoji='${e}';drawPickers()">${e}</span>`).join('');
+}
+function saveFolder(){
+  const name=document.getElementById('fName').value.trim(); if(!name){toast('اكتب اسم المجلد');return;}
+  if(editFolderId) Object.assign(folderOf(editFolderId),{name,color:selColor,emoji:selEmoji});
+  else db.folders.push({id:uid(),name,color:selColor,emoji:selEmoji});
+  save(); closeSheet(document.getElementById('folderSheet')); render();
+}
+function delFolder(){
+  const n=db.places.filter(p=>p.folderId===editFolderId).length;
+  if(!confirm(n?`المجلد فيه ${ar(n)} موقع، سيُحذف معه. متأكد؟`:'حذف المجلد؟'))return;
+  db.folders=db.folders.filter(f=>f.id!==editFolderId); db.places=db.places.filter(p=>p.folderId!==editFolderId);
+  if(curFolder===editFolderId) curFolder=null;
+  save(); closeSheet(document.getElementById('folderSheet')); render();
+}
+
+/* ---------- النسخ الاحتياطي ---------- */
+function openBackup(){document.getElementById('restoreBox').value='';openSheet('backupSheet');}
+async function copyBackup(){const t=JSON.stringify(db);
+  try{await navigator.clipboard.writeText(t);toast('تم النسخ ✓');}
+  catch(e){const b=document.getElementById('restoreBox');b.value=t;b.select();toast('اضغط مطولاً واختر نسخ');}}
+function restoreBackup(){
+  try{const d=JSON.parse(document.getElementById('restoreBox').value.trim());
+    if(!d.folders||!d.places) throw 0;
+    if(!confirm('سيتم استبدال المواقع الحالية بالنسخة. متأكد؟'))return;
+    db=d; save(); curFolder=null; closeSheet(document.getElementById('backupSheet')); render(); toast('تم الاسترداد ✓');
+  }catch(e){toast('النسخة غير صحيحة');}
+}
+
+function openSheet(id){document.getElementById(id).classList.add('on');history.pushState({s:id,f:curFolder},'');}
+function closeSheet(el){if(el.classList.contains('on')){el.classList.remove('on'); if(history.state&&history.state.s){ignorePop=true;history.back();}}}
+
+render();
+</script>
+</body>
+</html>
